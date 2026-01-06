@@ -69,6 +69,8 @@ function App() {
           <Route path="templates" element={<AdminTemplates />} />
           <Route path="templates/new" element={<TemplateEditor />} />
           <Route path="templates/:id/edit" element={<TemplateEditor />} />
+          <Route path="templates/v2/new" element={<TemplateEditorV2 />} />
+          <Route path="templates/v2/:id/edit" element={<TemplateEditorV2 />} />
           <Route path="content-types" element={<ContentTypes />} />
           <Route path="stats" element={<AdminDashboard />} />
         </Route>

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
 import type { ContentType, Template, TemplateUpdate } from '@/types/database'
-import { Edit, Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
+import { Edit, Eye, EyeOff, Plus, Sparkles, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -86,12 +86,20 @@ export default function AdminTemplates() {
           <h1 className="text-3xl font-bold text-gray-900">Templates</h1>
           <p className="text-gray-600 mt-2">Gérer les templates d'affiches</p>
         </div>
-        <Link to="/admin/templates/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Nouveau Template
-          </Button>
-        </Link>
+        <div className="flex gap-3">
+          <Link to="/admin/templates/v2/new">
+            <Button variant="outline">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Nouveau Template V2
+            </Button>
+          </Link>
+          <Link to="/admin/templates/new">
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau Template
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
