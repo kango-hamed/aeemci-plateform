@@ -67,8 +67,10 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="templates" element={<AdminTemplates />} />
+          <Route path="templates/new/edit" element={<TemplateEditor />} />
           <Route path="templates/:id/edit" element={<TemplateEditor />} />
           <Route path="content-types" element={<ContentTypes />} />
+          <Route path="stats" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </Router>
