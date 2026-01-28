@@ -1,0 +1,146 @@
+<div class="temp-container">
+      <div class="fond">
+        <img data-auto-dimension="true" src="https://uzchlyesfgaehkypfznu.supabase.co/storage/v1/object/public/template-assets/temp-suivi-progression/progression-vf.jpg" alt="">
+      </div>
+      <div class="cadre">
+        <div class="objective-header">
+          <div class="percentage">{{ pourcentage }}%</div>
+        </div>
+        <div class="progress-bar-container">
+          <!-- Dynamic width based on percentage -->
+          <div class="progress-bar-fill progress" style="width: {{ pourcentage }}%;"></div>
+          <div class="progress-bar-fill" style="width: 100%; opacity: 0.1;"></div>
+        </div>
+        <div class="amounts-row">
+          <div class="amount-item">
+            <div class="amount-label">Collecté</div>
+            <div class="amount-value">{{ collecte }} f CFA</div>
+          </div>
+          <div class="amount-item">
+            <div class="amount-label">Restant</div>
+            <div class="amount-value">{{ restant }} f CFA</div>
+          </div>
+        </div>
+      </div>
+</div>
+
+<!-- css -->
+<style>
+/* Scoped to poster-container to avoid breaking admin UI */
+.temp-container {
+    font-family: 'Montserrat', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+}
+
+.poster-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.fond {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.fond img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.cadre {
+    padding: 20px 0 20px 0;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    bottom: 35.1%;
+    width: 76.13%;
+    height: 16.56%;
+    z-index: 2;
+}
+
+/* Zone de progression (Si utilisé ailleurs) */
+.progress-section {
+    position: absolute;
+    top: 560px;
+    left: 130px;
+    width: 820px;
+}
+
+.objective-header {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.percentage {
+    font-size: 32px;
+    font-weight: 700;
+    color: #e67e22;
+}
+
+/* Barre de progression */
+.progress-bar-container {
+    width: 100%;
+    height: 80px;
+    background: #f4a460;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress-bar-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background: #1a5f3a;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    z-index: 3;
+}
+
+/* Montants collecté et restant */
+.amounts-row {
+    padding: 0;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.amount-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.amount-label {
+    color: #1a5f3a;
+    font-weight: bold;
+}
+
+.amount-value {
+    color: #333;
+}
+</style>
+

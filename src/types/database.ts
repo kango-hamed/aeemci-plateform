@@ -78,6 +78,9 @@ export interface FieldConfig {
   maxLength?: number
   placeholder?: string
   options?: string[]
+  formula?: string // Expression like "(f1 / f2) * 100"
+  defaultValue?: string | number
+  readOnly?: boolean
 }
 
 
