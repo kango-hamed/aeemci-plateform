@@ -354,12 +354,55 @@ export default function PosterCreator() {
 
     console.log('[Preview] Rendering with dimensions:', { width, height, effectiveDimensions, template: { w: template.largeur, h: template.hauteur } });
 
-    // Replace template variables with form data
+    // Helper to format numbers (space separator for thousands)
+    const formatNumber = (val: string | number) => {
+        if (!val) return '';
+        const num = String(val).replace(/[^0-9.,]/g, ''); // Keep only numbers and separators
+        if (!num) return val;
+        // Simple formatter: 10000 -> 10 000
+        return num.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    };
+
     let htmlContent = template.html_structure;
+
+    // Advanced processing: Handle data-format attributes
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const formattedElements = doc.querySelectorAll('[data-format="number"], [data-format="currency"]');
+        
+        if (formattedElements.length > 0) {
+            console.log(`[Preview] Found ${formattedElements.length} elements to format`);
+            
+            formattedElements.forEach(el => {
+                let content = el.innerHTML;
+                Object.entries(formData).forEach(([key, value]) => {
+                    // Use regex to check existence to handle spacing ({{key}} vs {{ key }})
+                    if (new RegExp(`{{\\s*${key}\\s*}}`).test(content)) {
+                        const formattedVal = formatNumber(value);
+                        console.log(`[Preview] Formatting ${key}: ${value} -> ${formattedVal}`);
+                        // Replace only within this element
+                        content = content.replace(new RegExp(`{{\\s*${key}\\s*}}`, 'g'), String(formattedVal));
+                    }
+                });
+                el.innerHTML = content;
+                // Optional: remove the attribute to clean up output
+                el.removeAttribute('data-format');
+            });
+            
+            // Re-serialize strictly the body content to avoid adding <html><body> tags
+            htmlContent = doc.body.innerHTML; 
+        }
+    } catch (e) {
+        console.error('[Preview] Error processing data-format attributes:', e);
+        // Fallback to original content on error
+    }
+
+    // Standard replacement for remaining variables
     Object.entries(formData).forEach(([key, value]) => {
         const replaced = htmlContent.replace(new RegExp(`{{\\s*${key}\\s*}}`, 'g'), value || '');
         if (replaced !== htmlContent) {
-          console.log(`[Preview] Replaced {{${key}}} with:`, value);
+          // Log only if not already logged (less noise)
         }
         htmlContent = replaced;
     });
