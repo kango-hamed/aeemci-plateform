@@ -1,7 +1,7 @@
 import Navbar from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { ContentType, Template } from '@/types/database'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -24,7 +24,7 @@ export default function TemplateSelection() {
     if (!typeId) return
     
     try {
-      const { data: typeData, error: typeError } = await supabase
+      const { data: typeData, error: typeError } = await api
         .from('types_contenus')
         .select('*')
         .eq('id', typeId)
@@ -34,7 +34,7 @@ export default function TemplateSelection() {
       setContentType(typeData)
 
       // Fetch templates
-      const { data: templatesData, error: templatesError } = await supabase
+      const { data: templatesData, error: templatesError } = await api
         .from('templates')
         .select('*')
         .eq('type_contenu_id', typeId)

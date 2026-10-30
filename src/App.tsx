@@ -19,7 +19,10 @@ import TemplateEditor from './pages/admin/TemplateEditor'
 import AdminTemplates from './pages/admin/Templates'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthStore()
+  const { user, loading } = useAuthStore()
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-500">Chargement…</div>
+  }
   return user ? <>{children}</> : <Navigate to="/login" replace />
 }
 
@@ -28,7 +31,7 @@ function App() {
 
   useEffect(() => {
     initialize()
-  }, [])
+  }, [initialize])
   return (
     <Router>
       <Routes>

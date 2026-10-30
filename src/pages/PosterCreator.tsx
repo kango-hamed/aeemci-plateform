@@ -1,7 +1,7 @@
 import Navbar from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import type { Template } from '@/types/database'
 import html2canvas from 'html2canvas'
@@ -85,7 +85,7 @@ export default function PosterCreator() {
     if (!templateId) return
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from('templates')
         .select('*')
         .eq('id', templateId)
@@ -287,7 +287,7 @@ export default function PosterCreator() {
         console.log('[Generate] Blob created, size:', blob.size);
 
         // Save to database
-        await supabase.from('visuels_generes').insert({
+        await api.from('visuels_generes').insert({
           template_id: template.id,
           user_id: user.id,
           contenu_json: formData,

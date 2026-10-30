@@ -10,12 +10,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   
-  const { signIn, user, initialize } = useAuthStore()
+  const { signIn, user } = useAuthStore()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    initialize()
-  }, [initialize])
 
   useEffect(() => {
     if (user) {

@@ -1,6 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import { Card } from '@/components/ui/Card'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { useAuthStore } from '@/stores/authStore'
 import type { GeneratedVisual } from '@/types/database'
 import { format } from 'date-fns'
@@ -22,7 +22,7 @@ export default function History() {
     if (!user) return
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from('visuels_generes')
         .select('*')
         .eq('user_id', user?.id)

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { ContentType, ContentTypeUpdate } from '@/types/database'
 import { GripVertical, Save } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -16,7 +16,7 @@ export default function ContentTypes() {
 
   const fetchContentTypes = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from('types_contenus')
         .select('*')
         .order('ordre')
@@ -48,7 +48,7 @@ export default function ContentTypes() {
           actif: type.actif,
           ordre: type.ordre,
         }
-        const { error } = await supabase
+        const { error } = await api
           .from('types_contenus')
           .update(updateData as any)
           .eq('id', type.id)

@@ -1,87 +1,33 @@
-# AEEMCI - Plateforme de Génération d'Affiches
+# AEEMCI — Générateur d’affiches
 
-Plateforme web permettant aux délégations de l'AEEMCI-ESATIC de créer facilement des visuels de communication professionnels.
+L’application React/Vite actuelle se connecte directement au backend Neon avec `@neondatabase/neon-js`. Neon fournit Managed Better Auth pour les comptes et la Data API pour les requêtes PostgreSQL; aucun serveur Express n’est nécessaire.
 
-## 🚀 Démarrage Rapide
+## Configuration Neon
 
-### Prérequis
-- Node.js 18+ et npm
-- Compte Supabase
+1. Ouvre ou crée un projet Neon.
+2. Dans **Postgres → Data API**, active la Data API et vérifie que **Managed Better Auth** est sélectionné. La configuration Data API crée le rôle `authenticated` et les fonctions d’identité utilisées par les politiques RLS.
+3. Dans **Connect**, relève l’hôte Neon non pooler et le nom de la base; forme l’URL `https://<hôte>/<base>`. N’utilise ni la chaîne PostgreSQL avec son mot de passe, ni un hôte contenant `-pooler`, ni l’hôte de service `.apirest`.
+4. À la racine du dépôt, copie `.env.example` vers `.env` et renseigne `VITE_NEON_URL` avec cette URL de base. Dans le dépôt local actuel, cette variable a déjà été déduite de l’URL Managed Auth existante; vérifie-la avant de la remplacer.
+5. Dans l’éditeur SQL Neon, exécute `database/neon-schema.sql`, puis `database/neon-seed.sql`. Le schéma doit être exécuté après l’activation de la Data API. Le SQL d’exemple d’affiche, compatible PostgreSQL/Neon, se trouve dans `database/neon-sample-template.sql`.
+6. Installe les dépendances puis lance l’application :
 
-### Installation
+   ```powershell
+   npm install
+   npm run dev
+   ```
 
-1. **Cloner le projet**
-```bash
-git clone <repository-url>
-cd aeemci
+Ouvre [http://localhost:5173](http://localhost:5173). Quand le schéma ou les politiques changent, actualise le cache de schéma depuis **Postgres → Data API** dans la console Neon.
+
+L’inscription envoie un code OTP à six chiffres par email. Saisis-le dans le formulaire pour vérifier l’adresse et terminer la création du compte. Si tu avais déjà tenté de t’inscrire, utilise le bouton de renvoi du code.
+
+## Sécurité et administration
+
+Le navigateur utilise une URL de base HTTPS publique, jamais la chaîne PostgreSQL avec son mot de passe. NeonJS dérive les URL Managed Auth et Data API à partir de cette base. Les droits Data API sont limités aux tables de l’application; les anciennes tables Better Auth présentes dans `public` restent privées. L’accès aux lignes est contrôlé par les politiques PostgreSQL RLS dans `database/neon-schema.sql`.
+
+Après avoir créé un compte, trouve son identifiant dans `neon_auth.user`, puis donne-lui le rôle administrateur dans Neon :
+
+```sql
+UPDATE user_profiles SET role = 'admin' WHERE id = 'IDENTIFIANT_UTILISATEUR';
 ```
 
-2. **Installer les dépendances**
-```bash
-npm install
-```
-
-3. **Configuration Supabase**
-
-Créez un fichier `.env` à la racine du projet:
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
-```
-
-4. **Configurer la base de données**
-
-Dans votre projet Supabase:
-- Allez dans SQL Editor
-- Exécutez le fichier `supabase/schema.sql`
-- Exécutez le fichier `supabase/seed.sql`
-
-5. **Lancer en développement**
-```bash
-npm run dev
-```
-
-L'application sera accessible sur `http://localhost:5173`
-
-## 📦 Build pour Production
-
-```bash
-npm run build
-npm run preview
-```
-
-## 🛠️ Stack Technique
-
-- **Frontend**: React 19 + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Auth + Storage)
-- **State Management**: Zustand
-- **Routing**: React Router v6
-- **Image Generation**: html2canvas
-
-## 📁 Structure du Projet
-
-```
-aeemci/
-├── src/
-│   ├── components/
-│   │   ├── ui/          # Composants réutilisables
-│   │   ├── layout/      # Layout components
-│   │   └── templates/   # Template components
-│   ├── pages/           # Pages de l'application
-│   ├── lib/             # Utilitaires et clients
-│   ├── stores/          # Zustand stores
-│   └── types/           # TypeScript types
-├── supabase/
-│   ├── schema.sql       # Schéma de la base de données
-│   └── seed.sql         # Données initiales
-└── public/              # Assets statiques
-```
-
-## 🔐 Authentification
-
-L'application utilise Supabase Auth avec validation d'email obligatoire.
-
-## 📄 Licence
-
-Projet interne AEEMCI - ESATIC
+Les comptes existants de Supabase ne sont pas automatiquement transférés vers Neon Auth; les utilisateurs devront créer un nouveau compte.

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/Button'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { ContentType, Template, TemplateUpdate } from '@/types/database'
 import { Edit, Eye, EyeOff, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -18,7 +18,7 @@ export default function AdminTemplates() {
   const fetchData = async () => {
     try {
       // Fetch templates
-      const { data: templatesData, error: templatesError } = await supabase
+      const { data: templatesData, error: templatesError } = await api
         .from('templates')
         .select('*')
         .order('created_at', { ascending: false })
@@ -26,7 +26,7 @@ export default function AdminTemplates() {
       if (templatesError) throw templatesError
 
       // Fetch content types
-      const { data: typesData, error: typesError } = await supabase
+      const { data: typesData, error: typesError } = await api
         .from('types_contenus')
         .select('*')
         .order('ordre')
@@ -45,7 +45,7 @@ export default function AdminTemplates() {
   const toggleTemplateStatus = async (id: string, currentStatus: boolean) => {
     try {
       const updateData: TemplateUpdate = { actif: !currentStatus }
-      const { error } = await supabase
+      const { error } = await api
         .from('templates')
         .update(updateData as any)
         .eq('id', id)
@@ -62,7 +62,7 @@ export default function AdminTemplates() {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce template ?')) return
 
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from('templates')
         .delete()
         .eq('id', id)

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { FileText, Image, TrendingUp, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -25,17 +25,17 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       // Count users
-      const { count: usersCount } = await supabase
+      const { count: usersCount } = await api
         .from('user_profiles')
         .select('*', { count: 'exact', head: true })
 
       // Count templates
-      const { count: templatesCount } = await supabase
+      const { count: templatesCount } = await api
         .from('templates')
         .select('*', { count: 'exact', head: true })
 
       // Count total visuals
-      const { count: visualsCount } = await supabase
+      const { count: visualsCount } = await api
         .from('visuels_generes')
         .select('*', { count: 'exact', head: true })
 
@@ -44,7 +44,7 @@ export default function AdminDashboard() {
       startOfMonth.setDate(1)
       startOfMonth.setHours(0, 0, 0, 0)
 
-      const { count: monthVisualsCount } = await supabase
+      const { count: monthVisualsCount } = await api
         .from('visuels_generes')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', startOfMonth.toISOString())

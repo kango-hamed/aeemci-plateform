@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { ContentType, Template, TemplateInsert, TemplateUpdate } from '@/types/database'
 import { ArrowLeft, Save } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -14,8 +14,6 @@ export default function TemplateEditor() {
   const [loading, setLoading] = useState(isEditing)
   const [saving, setSaving] = useState(false)
   const [contentTypes, setContentTypes] = useState<ContentType[]>([])
-  const [mode, setMode] = useState<'visual' | 'code'>('visual')
-  
   const [formData, setFormData] = useState({
     nom: '',
     description: '',
@@ -38,7 +36,7 @@ export default function TemplateEditor() {
   }, [id])
 
   const fetchContentTypes = async () => {
-    const { data } = await supabase
+    const { data } = await api
       .from('types_contenus')
       .select('*')
       .order('ordre')
@@ -50,7 +48,7 @@ export default function TemplateEditor() {
     if (!id) return
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from('templates')
         .select('*')
         .eq('id', id)
@@ -60,16 +58,6 @@ export default function TemplateEditor() {
 
       const template = data as Template
       
-      // Auto-detect mode
-      let initialMode: 'visual' | 'code' = 'code'
-      try {
-          if (template.html_structure.trim().startsWith('{')) {
-              JSON.parse(template.html_structure)
-              initialMode = 'visual'
-          }
-      } catch {}
-      setMode(initialMode)
-
       setFormData({
         nom: template.nom,
         description: template.description || '',
@@ -135,14 +123,14 @@ export default function TemplateEditor() {
           actif: formData.actif,
           preview_url: formData.preview_url,
         }
-        const { error } = await supabase
+        const { error } = await api
           .from('templates')
           .update(updateData as any)
           .eq('id', id)
 
         if (error) throw error
       } else {
-        const { error } = await supabase
+        const { error } = await api
           .from('templates')
           .insert(templateData as any)
 
@@ -156,28 +144,6 @@ export default function TemplateEditor() {
     } finally {
       setSaving(false)
     }
-  }
-
-  const handleCanvasSave = (contentJSON: string, previewUrl: string) => {
-      setFormData(prev => ({
-          ...prev,
-          html_structure: contentJSON,
-          preview_url: previewUrl // This is huge base64, ideally we upload to storage
-      }));
-      // Auto-upload preview to storage could be here, for now saving base64 to DB (might be too large?)
-      // Supabase TEXT column can hold large strings, but better to upload. 
-      // For MVP, base64 in a "text" column is risky if limit is small.
-      // But let's assume it fits or user will upload later.
-  }
-
-  // Get Fields for binding
-  const getAvailableFields = () => {
-      try {
-          const config = JSON.parse(formData.champs_config);
-          return Array.isArray(config) ? config : [];
-      } catch {
-          return [];
-      }
   }
 
   if (loading) {

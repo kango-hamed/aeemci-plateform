@@ -1,6 +1,6 @@
 import Navbar from '@/components/layout/Navbar'
 import { Card } from '@/components/ui/Card'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { ContentType } from '@/types/database'
 import {
     Bell,
@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   const fetchContentTypes = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from('types_contenus')
         .select('*')
         .eq('actif', true)

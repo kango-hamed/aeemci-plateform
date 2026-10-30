@@ -23,14 +23,14 @@ export default function Signup() {
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [verificationSent, setVerificationSent] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [resendNotice, setResendNotice] = useState('')
+  const [showResendOption, setShowResendOption] = useState(false)
   const [loading, setLoading] = useState(false)
   
-  const { signUp, user, initialize } = useAuthStore()
+  const { signUp, verifyEmail, resendVerificationCode, user } = useAuthStore()
   const navigate = useNavigate()
-
-  useEffect(() => {
-    initialize()
-  }, [initialize])
 
   useEffect(() => {
     if (user) {
@@ -50,8 +50,8 @@ export default function Signup() {
       return
     }
 
-    if (formData.password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères')
+    if (formData.password.length < 8) {
+      setError('Le mot de passe doit contenir au moins 8 caractères')
       setLoading(false)
       return
     }
@@ -69,10 +69,40 @@ export default function Signup() {
         formData.fullName,
         formData.delegation
       )
-      setSuccess(true)
-      setTimeout(() => navigate('/login'), 3000)
+      setVerificationSent(true)
     } catch (err: any) {
       setError(err.message || 'Erreur lors de l\'inscription')
+      setShowResendOption(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyEmail = async (e: FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      await verifyEmail(formData.email, verificationCode.trim())
+      setSuccess(true)
+      navigate('/')
+    } catch (err: any) {
+      setError(err.message || 'Code invalide ou expiré. Demande un nouveau code.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendCode = async () => {
+    setError('')
+    setResendNotice('')
+    setLoading(true)
+    try {
+      await resendVerificationCode(formData.email, formData.fullName, formData.delegation)
+      setVerificationSent(true)
+      setResendNotice('Un nouveau code vient d’être envoyé.')
+    } catch (err: any) {
+      setError(err.message || 'Impossible de renvoyer le code pour le moment.')
     } finally {
       setLoading(false)
     }
@@ -109,13 +139,38 @@ export default function Signup() {
 
           {success && (
             <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-600">
-                Inscription réussie ! Vérifiez votre email pour confirmer votre compte.
-                Redirection...
-              </p>
+              <p className="text-sm text-green-600">Adresse email vérifiée. Redirection…</p>
             </div>
           )}
 
+          {verificationSent && !success ? (
+            <form onSubmit={handleVerifyEmail} className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Un code à six chiffres a été envoyé à <strong>{formData.email}</strong>. Saisis-le pour confirmer ton adresse.
+              </p>
+              {resendNotice && <p className="text-sm text-green-700">{resendNotice}</p>}
+              <Input
+                type="text"
+                name="verificationCode"
+                label="Code de vérification"
+                placeholder="123456"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                required
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+              />
+              <Button type="submit" className="w-full" size="lg" isLoading={loading}>
+                Vérifier mon adresse
+              </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={handleResendCode} isLoading={loading}>
+                Renvoyer le code
+              </Button>
+            </form>
+          ) : !success ? (
+          <>
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="text"
@@ -160,12 +215,12 @@ export default function Signup() {
               type="password"
               name="password"
               label="Mot de passe"
-              placeholder="Minimum 6 caractères"
+              placeholder="Minimum 8 caractères"
               value={formData.password}
               onChange={handleChange}
               required
               autoComplete="new-password"
-              helperText="Au moins 6 caractères"
+              helperText="Au moins 8 caractères"
             />
 
             <Input
@@ -189,6 +244,18 @@ export default function Signup() {
               S'inscrire
             </Button>
           </form>
+          {showResendOption && formData.email && (
+            <div className="mt-4 text-center">
+              <p className="mb-2 text-sm text-gray-600">
+                Si tu avais déjà tenté l’inscription, tu peux demander un nouveau code.
+              </p>
+              <Button type="button" variant="outline" className="w-full" onClick={handleResendCode} isLoading={loading}>
+                Envoyer un code de vérification
+              </Button>
+            </div>
+          )}
+          </>
+          ) : null}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
